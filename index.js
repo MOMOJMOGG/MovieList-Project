@@ -2,11 +2,13 @@ const BASE_URL = 'https://movie-list.alphacamp.io'
 const INDEX_URL = BASE_URL + '/api/v1/movies/'
 const POSTER_URL = BASE_URL + '/posters/'
 
+const movies = []
+
 axios
-  .get(INDEX_URL) // 修改這裡
+  .get(INDEX_URL)
   .then((response) => {
-    console.log(response)
-    console.log(response.data)
-    console.log(response.data.results)
+    // ... 為展開運算子
+    movies.push(...response.data.results)
+    console.log(movies)
   })
   .catch((err) => console.log(err))
