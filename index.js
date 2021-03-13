@@ -2,9 +2,17 @@ const BASE_URL = 'https://movie-list.alphacamp.io'
 const INDEX_URL = BASE_URL + '/api/v1/movies/'
 const POSTER_URL = BASE_URL + '/posters/'
 
-// 放資料進網頁
+const movies = []
 const dataPanel = document.querySelector('#data-panel')
 
+// 監聽 data panel
+dataPanel.addEventListener('click', function onPanelClicked(event) {
+  if (event.target.matches('.btn-show-movie')) {
+    console.log(event.target.dataset.id)
+  }
+})
+
+// 放資料進網頁
 function renderMovieList(data) {
   let contentHTML = ``
 
@@ -20,7 +28,7 @@ function renderMovieList(data) {
               </div>
               <div class="card-footer">
                 <button class="btn btn-primary btn-show-movie" data-toggle="modal"
-                  data-target="#movie-modal">More</button>
+                  data-target="#movie-modal" data-id="${item.id}">More</button>
                 <button class="btn btn-info btn-add-favorite">+</button>
               </div>
             </div>
@@ -33,8 +41,6 @@ function renderMovieList(data) {
 }
 
 // 請求資料
-const movies = []
-
 axios
   .get(INDEX_URL)
   .then((response) => {
