@@ -8,9 +8,28 @@ const dataPanel = document.querySelector('#data-panel')
 // 監聽 data panel
 dataPanel.addEventListener('click', function onPanelClicked(event) {
   if (event.target.matches('.btn-show-movie')) {
-    console.log(event.target.dataset.id)
+    showMovieModal(event.target.dataset.id)
   }
 })
+
+// Modal 顯示
+function showMovieModal(id) {
+  const modalTitle = document.querySelector('#movie-modal-title')
+  const modalImage = document.querySelector('#movie-modal-image')
+  const modalDate = document.querySelector('#movie-modal-date')
+  const modalDescription = document.querySelector('#movie-modal-description')
+
+  axios
+    .get(INDEX_URL + id)
+    .then((response) => {
+      const data = response.data.results
+      modalTitle.innerText = data.title
+      modalDate.innerText = 'Release date: ' + data.release_date
+      modalDescription.innerText = data.description
+      modalImage.innerHTML = `<img src="${POSTER_URL + data.image}" alt="movie-poster" class="img-fluid">`
+    })
+
+}
 
 // 放資料進網頁
 function renderMovieList(data) {
