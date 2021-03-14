@@ -18,6 +18,12 @@ function getMoviesByPage(page) {
 
 // 更新分頁頁數畫面
 function renderPaginator(amount) {
+  // 分頁數若為0, 不顯示分頁
+  if (amount === 0) {
+    paginator.innerHTML = ""
+    return
+  }
+
   //計算總頁數
   const numberOfPages = Math.ceil(amount / MOVIES_PER_PAGE)
 
@@ -39,6 +45,9 @@ paginator.addEventListener('click', function onPaginatorClicked(event) {
 
   //透過 dataset 取得被點擊的頁數
   const page = Number(event.target.dataset.page)
+
+  // 暫存當下頁數至 local storage
+  localStorage.setItem('favoriteCurrentPage', JSON.stringify(page))
 
   //更新畫面
   renderMovieList(getMoviesByPage(page))
@@ -103,12 +112,21 @@ function removeFromFavorite(id) {
   // 刪除該筆電影
   movies.splice(movieIndex, 1)
 
-  //存回 local storage
+  // 存回 local storage
   localStorage.setItem('favoriteMovies', JSON.stringify(movies))
+
+  // 確認刪除停留頁面
+  const currentPage = JSON.parse(localStorage.getItem('favoriteCurrentPage'))
+  const totalPage = Math.ceil(movies.length / MOVIES_PER_PAGE)
+  let page = currentPage
+  if (totalPage < currentPage) {
+    page = totalPage
+    localStorage.setItem('favoriteCurrentPage', JSON.stringify(page))
+  }
 
   //更新頁面
   renderPaginator(movies.length)
-  renderMovieList(getMoviesByPage(1))
+  renderMovieList(getMoviesByPage(page))
 }
 
 // 監聽 data panel
@@ -122,3 +140,4 @@ dataPanel.addEventListener('click', function onPanelClicked(event) {
 
 renderPaginator(movies.length)
 renderMovieList(getMoviesByPage(1))
+localStorage.setItem('favoriteCurrentPage', JSON.stringify(1))
