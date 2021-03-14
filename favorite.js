@@ -3,8 +3,46 @@ const INDEX_URL = BASE_URL + '/api/v1/movies/'
 const POSTER_URL = BASE_URL + '/posters/'
 
 const movies = JSON.parse(localStorage.getItem('favoriteMovies'))  //收藏清單
-
+const MOVIES_PER_PAGE = 12
 const dataPanel = document.querySelector('#data-panel')
+const paginator = document.querySelector('#paginator')
+
+// 切割部分電影資料
+function getMoviesByPage(page) {
+  //計算起始 index 
+  const startIndex = (page - 1) * MOVIES_PER_PAGE
+
+  //回傳切割後的新陣列
+  return movies.slice(startIndex, startIndex + MOVIES_PER_PAGE)
+}
+
+// 更新分頁頁數畫面
+function renderPaginator(amount) {
+  //計算總頁數
+  const numberOfPages = Math.ceil(amount / MOVIES_PER_PAGE)
+
+  //製作 template 
+  let contentHTML = ''
+
+  for (let page = 1; page <= numberOfPages; page++) {
+    contentHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${page}">${page}</a></li>`
+  }
+
+  //放回 HTML
+  paginator.innerHTML = contentHTML
+}
+
+// 分頁事件監聽
+paginator.addEventListener('click', function onPaginatorClicked(event) {
+  //如果被點擊的不是 a 標籤 則 跳出函式
+  if (event.target.tagName !== 'A') return
+
+  //透過 dataset 取得被點擊的頁數
+  const page = Number(event.target.dataset.page)
+
+  //更新畫面
+  renderMovieList(getMoviesByPage(page))
+})
 
 // 放資料進網頁
 function renderMovieList(data) {
@@ -69,7 +107,8 @@ function removeFromFavorite(id) {
   localStorage.setItem('favoriteMovies', JSON.stringify(movies))
 
   //更新頁面
-  renderMovieList(movies)
+  renderPaginator(movies.length)
+  renderMovieList(getMoviesByPage(1))
 }
 
 // 監聽 data panel
@@ -81,4 +120,5 @@ dataPanel.addEventListener('click', function onPanelClicked(event) {
   }
 })
 
-renderMovieList(movies)
+renderPaginator(movies.length)
+renderMovieList(getMoviesByPage(1))
