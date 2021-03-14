@@ -7,6 +7,7 @@ const movies = []
 const dataPanel = document.querySelector('#data-panel')
 const searchForm = document.querySelector('#search-form')
 const searchInput = document.querySelector('#search-input')
+const paginator = document.querySelector('#paginator')
 
 // 切割部分電影資料
 function getMoviesByPage(page) {
@@ -117,7 +118,7 @@ function renderMovieList(data) {
   dataPanel.innerHTML = contentHTML
 }
 
-// 更新頁數畫面
+// 更新分頁頁數畫面
 function renderPaginator(amount) {
   //計算總頁數
   const numberOfPages = Math.ceil(amount / MOVIES_PER_PAGE)
@@ -133,6 +134,18 @@ function renderPaginator(amount) {
   paginator.innerHTML = contentHTML
 }
 
+// 分頁事件監聽
+paginator.addEventListener('click', function onPaginatorClicked(event) {
+  //如果被點擊的不是 a 標籤 則 跳出函式
+  if (event.target.tagName !== 'A') return
+
+  //透過 dataset 取得被點擊的頁數
+  const page = Number(event.target.dataset.page)
+
+  //更新畫面
+  renderMovieList(getMoviesByPage(page))
+})
+
 // 請求資料
 axios
   .get(INDEX_URL)
@@ -140,6 +153,6 @@ axios
     // ... 為展開運算子
     movies.push(...response.data.results)
     renderPaginator(movies.length)
-    renderMovieList(getMoviesByPage(3))
+    renderMovieList(getMoviesByPage(1))
   })
   .catch((err) => console.log(err))
