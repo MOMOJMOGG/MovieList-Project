@@ -23,7 +23,7 @@ function renderMovieList(data) {
               <div class="card-footer">
                 <button class="btn btn-primary btn-show-movie" data-toggle="modal"
                   data-target="#movie-modal" data-id="${item.id}">More</button>
-                <button class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>
+                <button class="btn btn-danger btn-remove-favorite" data-id="${item.id}">X</button>
               </div>
             </div>
           </div>
@@ -51,12 +51,33 @@ function showMovieModal(id) {
   modalImage.innerHTML = `<img src="${POSTER_URL + targetMovie.image}" alt="movie-poster" class="img-fluid">`
 }
 
+// 刪除 喜歡清單
+function removeFromFavorite(id) {
+  // 錯誤保護 : 若電影清單為空 則 跳出函式
+  if (!movies) return
+
+  // 透過 id 找到要刪除的電影 index
+  const movieIndex = movies.findIndex((movie) => movie.id === id)
+
+  // 錯誤保護 : 若找不到符合電影 則 跳出函式
+  if (movieIndex === -1) return
+
+  // 刪除該筆電影
+  movies.splice(movieIndex, 1)
+
+  //存回 local storage
+  localStorage.setItem('favoriteMovies', JSON.stringify(movies))
+
+  //更新頁面
+  renderMovieList(movies)
+}
+
 // 監聽 data panel
 dataPanel.addEventListener('click', function onPanelClicked(event) {
   if (event.target.matches('.btn-show-movie')) {
     showMovieModal(Number(event.target.dataset.id))
-  } else if (event.target.matches('.btn-add-favorite')) {
-    addToFavorite(Number(event.target.dataset.id))
+  } else if (event.target.matches('.btn-remove-favorite')) {
+    removeFromFavorite(Number(event.target.dataset.id))
   }
 })
 
