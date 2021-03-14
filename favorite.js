@@ -51,7 +51,7 @@ function showMovieModal(id) {
   modalImage.innerHTML = `<img src="${POSTER_URL + targetMovie.image}" alt="movie-poster" class="img-fluid">`
 }
 
-// 刪除 喜歡清單
+// 刪除 收藏清單
 function removeFromFavorite(id) {
   // 錯誤保護 : 若電影清單為空 則 跳出函式
   if (!movies) return

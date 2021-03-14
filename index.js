@@ -2,10 +2,20 @@ const BASE_URL = 'https://movie-list.alphacamp.io'
 const INDEX_URL = BASE_URL + '/api/v1/movies/'
 const POSTER_URL = BASE_URL + '/posters/'
 
+const MOVIES_PER_PAGE = 12
 const movies = []
 const dataPanel = document.querySelector('#data-panel')
 const searchForm = document.querySelector('#search-form')
 const searchInput = document.querySelector('#search-input')
+
+// 切割部分電影資料
+function getMoviesByPage(page) {
+  //計算起始 index 
+  const startIndex = (page - 1) * MOVIES_PER_PAGE
+
+  //回傳切割後的新陣列
+  return movies.slice(startIndex, startIndex + MOVIES_PER_PAGE)
+}
 
 // 監聽表單提交事件
 searchForm.addEventListener('submit', function onSearchFormSubmitted(event) {
@@ -48,6 +58,7 @@ function addToFavorite(id) {
   if (list.some(matchIdFromList)) {
     return alert('此電影已經在收藏清單中！')
   }
+
   list.push(movie)
   localStorage.setItem('favoriteMovies', JSON.stringify(list))
 }
@@ -106,12 +117,29 @@ function renderMovieList(data) {
   dataPanel.innerHTML = contentHTML
 }
 
+// 更新頁數畫面
+function renderPaginator(amount) {
+  //計算總頁數
+  const numberOfPages = Math.ceil(amount / MOVIES_PER_PAGE)
+
+  //製作 template 
+  let contentHTML = ''
+
+  for (let page = 1; page <= numberOfPages; page++) {
+    contentHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${page}">${page}</a></li>`
+  }
+
+  //放回 HTML
+  paginator.innerHTML = contentHTML
+}
+
 // 請求資料
 axios
   .get(INDEX_URL)
   .then((response) => {
     // ... 為展開運算子
     movies.push(...response.data.results)
-    renderMovieList(movies)
+    renderPaginator(movies.length)
+    renderMovieList(getMoviesByPage(3))
   })
   .catch((err) => console.log(err))
