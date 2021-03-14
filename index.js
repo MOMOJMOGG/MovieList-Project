@@ -37,12 +37,20 @@ searchForm.addEventListener('submit', function onSearchFormSubmitted(event) {
   renderMovieList(filterMovies)
 })
 
-// 監聽 data panel
-dataPanel.addEventListener('click', function onPanelClicked(event) {
-  if (event.target.matches('.btn-show-movie')) {
-    showMovieModal(Number(event.target.dataset.id))
+// 新增喜歡清單
+function addToFavorite(id) {
+  function matchIdFromList(movie) {
+    return movie.id === id
   }
-})
+  const list = JSON.parse(localStorage.getItem('favoriteMovies')) || []
+  const movie = movies.find(matchIdFromList)
+
+  if (list.some(matchIdFromList)) {
+    return alert('此電影已經在收藏清單中！')
+  }
+  list.push(movie)
+  localStorage.setItem('favoriteMovies', JSON.stringify(list))
+}
 
 // Modal 顯示
 function showMovieModal(id) {
@@ -61,6 +69,15 @@ function showMovieModal(id) {
   modalImage.innerHTML = `<img src="${POSTER_URL + targetMovie.image}" alt="movie-poster" class="img-fluid">`
 }
 
+// 監聽 data panel
+dataPanel.addEventListener('click', function onPanelClicked(event) {
+  if (event.target.matches('.btn-show-movie')) {
+    showMovieModal(Number(event.target.dataset.id))
+  } else if (event.target.matches('.btn-add-favorite')) {
+    addToFavorite(Number(event.target.dataset.id))
+  }
+})
+
 // 放資料進網頁
 function renderMovieList(data) {
   let contentHTML = ``
@@ -78,7 +95,7 @@ function renderMovieList(data) {
               <div class="card-footer">
                 <button class="btn btn-primary btn-show-movie" data-toggle="modal"
                   data-target="#movie-modal" data-id="${item.id}">More</button>
-                <button class="btn btn-info btn-add-favorite">+</button>
+                <button class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>
               </div>
             </div>
           </div>
