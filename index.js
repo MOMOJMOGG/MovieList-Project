@@ -4,6 +4,7 @@ const POSTER_URL = BASE_URL + '/posters/'
 
 const MOVIES_PER_PAGE = 12
 const movies = []
+let filteredMovies = []
 const dataPanel = document.querySelector('#data-panel')
 const searchForm = document.querySelector('#search-form')
 const searchInput = document.querySelector('#search-input')
@@ -11,11 +12,14 @@ const paginator = document.querySelector('#paginator')
 
 // 切割部分電影資料
 function getMoviesByPage(page) {
+  // 判斷要取搜尋清單 或是 總電影清單
+  const targetList = filteredMovies.length ? filteredMovies : movies
+
   //計算起始 index 
   const startIndex = (page - 1) * MOVIES_PER_PAGE
 
   //回傳切割後的新陣列
-  return movies.slice(startIndex, startIndex + MOVIES_PER_PAGE)
+  return targetList.slice(startIndex, startIndex + MOVIES_PER_PAGE)
 }
 
 // 監聽表單提交事件
@@ -25,27 +29,20 @@ searchForm.addEventListener('submit', function onSearchFormSubmitted(event) {
 
   // 取得搜尋關鍵字
   const keyword = searchInput.value.trim().toLowerCase()
-  console.log(keyword)
-  // 錯誤處理：輸入無效字串
-  if (!keyword.length) {
-    return alert('請輸入有效字串')
-  }
-
-  // 儲存符合篩選標準的電影
-  let filterMovies = []
 
   // 條件篩選
-  filterMovies = movies.filter((movie) =>
+  filteredMovies = movies.filter((movie) =>
     movie.title.toLowerCase().includes(keyword)
   )
 
   // 錯誤處理 : 無符合條件的結果
-  if (filterMovies.length === 0) {
+  if (filteredMovies.length === 0) {
     return alert(`您輸入的關鍵字 : ${keyword} 沒有符合條件的電影!`)
   }
 
   // 重新更新至畫面
-  renderMovieList(filterMovies)
+  renderPaginator(filteredMovies.length)
+  renderMovieList(getMoviesByPage(1))
 })
 
 // 新增喜歡清單
