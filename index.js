@@ -78,17 +78,39 @@ function showMovieModal(id) {
   modalImage.innerHTML = `<img src="${POSTER_URL + targetMovie.image}" alt="movie-poster" class="img-fluid">`
 }
 
+// favorite Button
+
+
 // 監聽 data panel
 dataPanel.addEventListener('click', function onPanelClicked(event) {
-  if (event.target.matches('.btn-show-movie')) {
+  const target = event.target
+  if (target.matches('.btn-show-movie')) {
     showMovieModal(Number(event.target.dataset.id))
-  } else if (event.target.matches('.btn-add-favorite')) {
-    addToFavorite(Number(event.target.dataset.id))
+  } else if (target.matches('.btn-add-favorite')) {
+    // 加到 local Storage 收藏清單
+    addToFavorite(Number(target.dataset.id))
+
+    // 更改成 收藏按鈕
+    const parent = target.parentElement
+    target.remove()
+    const favoriteBtn = `<button class="btn btn-add-favorite" data-id="${target.dataset.id}" style="background-color:HotPink"><i class="far fa-heart fa-lg"></i></button>`
+    parent.innerHTML += favoriteBtn
   }
 })
 
+function getFavoriteIdList() {
+  const list = JSON.parse(localStorage.getItem('favoriteMovies')) || []
+  const idList = []
+  list.forEach((movie) => {
+    idList.push(movie.id)
+  })
+  return idList
+}
+
 // 放資料進網頁
 function renderMovieList(data) {
+  const favoriteIdList = getFavoriteIdList()
+  console.log(favoriteIdList)
   let contentHTML = ``
 
   data.forEach((item) => {
@@ -104,7 +126,14 @@ function renderMovieList(data) {
               <div class="card-footer">
                 <button class="btn btn-primary btn-show-movie" data-toggle="modal"
                   data-target="#movie-modal" data-id="${item.id}">More</button>
-                <button class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>
+      `
+    if (favoriteIdList.some((favoriteId) => favoriteId === item.id)) {
+      contentHTML += `<button class="btn btn-favorite" data-id="${item.id}" style="background-color:HotPink"><i class="far fa-heart fa-lg"></i></button>`
+    } else {
+      contentHTML += `<button class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button>`
+    }
+
+    contentHTML += `
               </div>
             </div>
           </div>
@@ -117,6 +146,12 @@ function renderMovieList(data) {
 
 // 更新分頁頁數畫面
 function renderPaginator(amount) {
+  // 分頁數若為0, 不顯示分頁
+  if (amount === 0) {
+    paginator.innerHTML = ""
+    return
+  }
+
   //計算總頁數
   const numberOfPages = Math.ceil(amount / MOVIES_PER_PAGE)
 
@@ -139,6 +174,9 @@ paginator.addEventListener('click', function onPaginatorClicked(event) {
   //透過 dataset 取得被點擊的頁數
   const page = Number(event.target.dataset.page)
 
+  // 暫存當下頁數至 local storage
+  localStorage.setItem('homeCurrentPage', JSON.stringify(page))
+
   //更新畫面
   renderMovieList(getMoviesByPage(page))
 })
@@ -151,5 +189,6 @@ axios
     movies.push(...response.data.results)
     renderPaginator(movies.length)
     renderMovieList(getMoviesByPage(1))
+    localStorage.setItem('homeCurrentPage', JSON.stringify(1))
   })
   .catch((err) => console.log(err))
