@@ -7,7 +7,7 @@ const movies = JSON.parse(localStorage.getItem('favoriteMovies'))  // 收藏清�
 const MOVIES_PER_PAGE = 12
 const dataPanel = document.querySelector('#data-panel')
 const paginator = document.querySelector('#paginator')
-
+const modal = document.getElementById('movie-modal')
 // ***************************************************************************** Function
 /*** 切割部分電影資料 ***/
 function getMoviesByPage(page) {
@@ -73,20 +73,42 @@ function showMovieModal(id) {
     return movie.id === id
   }
 
-  // Modal DOM 元素
-  const modalTitle = document.querySelector('#movie-modal-title')
-  const modalImage = document.querySelector('#movie-modal-image')
-  const modalDate = document.querySelector('#movie-modal-date')
-  const modalDescription = document.querySelector('#movie-modal-description')
-
   // 從 電影總清單 取出第 id 筆電影
   const targetMovie = movies.find(matchIdFromList)
 
-  // 設定 顯示資訊
-  modalTitle.innerText = targetMovie.title
-  modalDate.innerText = 'Release date: ' + targetMovie.release_date
-  modalDescription.innerText = targetMovie.description
-  modalImage.innerHTML = `<img src="${POSTER_URL + targetMovie.image}" alt="movie-poster" class="img-fluid">`
+  // 先清空 再重顯頁面
+  modal.innerHTML = ''
+
+  modal.innerHTML = `
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="movie-modal-title">${targetMovie.title}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body" id="movie-modal-body">
+          <div class="row">
+            <div class="col-sm-8" id="movie-modal-image">
+              <img
+                src="${POSTER_URL + targetMovie.image}"
+                alt="movie-poster" class="img-fluid">
+            </div>
+            <div class="col-sm-4">
+              <p><em id="movie-modal-date">release date: ${targetMovie.release_date}</em></p>
+              <p id="movie-modal-description">${targetMovie.description}</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  `
 }
 
 /***  刪除 收藏清單 ***/
