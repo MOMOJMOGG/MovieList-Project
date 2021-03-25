@@ -11,10 +11,11 @@ const paginator = document.querySelector('#paginator')
 // ***************************************************************************** Function
 /*** 切割部分電影資料 ***/
 function getMoviesByPage(page) {
-  //計算起始 index 
+
+  // 計算起始 index 
   const startIndex = (page - 1) * MOVIES_PER_PAGE
 
-  //回傳切割後的新陣列
+  // 回傳切割後的新陣列
   return movies.slice(startIndex, startIndex + MOVIES_PER_PAGE)
 }
 
