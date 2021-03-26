@@ -31,7 +31,7 @@
   </nav>
   <!-- Movie List -->
   <div class="container mt-5">
-    <div class="row">
+    <div class="row d-flex justify-content-between">
       <!-- Search Bar -->
       <form class="form-inline" id="search-form">
         <label class="sr-only" for="inlineFormInputName2">Search Keyword</label>
@@ -40,6 +40,16 @@
           Search
         </button>
       </form>
+      <div class="btn-group">
+        <!-- Card Btn -->
+        <a id="display-card" class="btn btn-default" href="#">
+          <i class="fa fa-th fa-2x" aria-hidden="true"></i>
+        </a>
+        <!-- List Btn -->
+        <a id="display-list" class="btn btn-default" href="#">
+          <i class="fa fa-bars fa-2x" aria-hidden="true"></i>
+        </a>
+      </div>
     </div>
     <div class="row" id="data-panel">
       <!-- Render Movie List -->

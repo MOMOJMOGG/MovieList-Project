@@ -11,6 +11,8 @@ const searchForm = document.querySelector('#search-form')
 const searchInput = document.querySelector('#search-input')
 const paginator = document.querySelector('#paginator')
 const modal = document.getElementById('movie-modal')
+const displayCard = document.getElementById('display-card')
+const displayList = document.getElementById('display-list')
 // ***************************************************************************** Function
 /*** 切割部分電影資料 ***/
 function getMoviesByPage(page) {
@@ -106,9 +108,21 @@ function getFavoriteIdList() {
 function renderMovieList(data) {
   // 取得 收藏id清單
   const favoriteIdList = getFavoriteIdList()
+
+  const mode = JSON.parse(localStorage.getItem('displayMode'))
+
+  if (mode === 'card') {
+    renderCardMode(data, favoriteIdList)
+  } else if (mode === 'list') {
+    renderListMode(data, favoriteIdList)
+  }
+}
+
+/*** 顯示 卡片模式 ***/
+function renderCardMode(dataList, favoriteIdList) {
   let contentHTML = ``
 
-  data.forEach((item) => {
+  dataList.forEach((item) => {
     contentHTML += `
         <div class="col-sm-3">
           <div class="mb-2">
@@ -122,6 +136,7 @@ function renderMovieList(data) {
                 <button class="btn btn-primary btn-show-movie" data-toggle="modal"
                   data-target="#movie-modal" data-id="${item.id}">More</button>
       `
+
     // 判斷顯示 喜歡按鈕 或 加入按鈕
     if (favoriteIdList.some((favoriteId) => favoriteId === item.id)) {
       contentHTML += `<button class="btn btn-favorite" data-id="${item.id}" style="background-color:HotPink"><i class="far fa-heart fa-lg"></i></button>`
@@ -136,6 +151,41 @@ function renderMovieList(data) {
         </div>
       `
   })
+
+  dataPanel.innerHTML = contentHTML
+}
+
+/*** 顯示 清單模式 ***/
+function renderListMode(dataList, favoriteIdList) {
+  let contentHTML = ``
+
+  contentHTML += `<table class="table">
+                    <tbody>
+                `
+  dataList.forEach((item) => {
+    contentHTML += `
+        <tr>
+          <th>${item.title}</th>
+          <td></td>
+          <td><button class="btn btn-primary btn-show-movie" data-toggle="modal"
+                  data-target="#movie-modal" data-id="${item.id}">More</button>
+        `
+
+    // 判斷顯示 喜歡按鈕 或 加入按鈕
+    if (favoriteIdList.some((favoriteId) => favoriteId === item.id)) {
+      contentHTML += `<button class="btn btn-favorite" data-id="${item.id}" style="background-color:HotPink"><i class="far fa-heart fa-lg"></i></button></td>`
+    } else {
+      contentHTML += `<button class="btn btn-info btn-add-favorite" data-id="${item.id}">+</button></td>`
+    }
+
+    contentHTML += `
+              </tr>
+      `
+  })
+
+  contentHTML += `</tbody>
+                </table>
+              `
 
   dataPanel.innerHTML = contentHTML
 }
@@ -230,6 +280,20 @@ paginator.addEventListener('click', function onPaginatorClicked(event) {
   renderMovieList(getMoviesByPage(page))
 })
 
+/*** 監聽 顯示卡片模式 ***/
+displayCard.addEventListener('click', function onDisplayCardClicked(event) {
+  localStorage.setItem('displayMode', JSON.stringify('card'))
+  const currentPage = JSON.parse(localStorage.getItem('homeCurrentPage'))
+  renderMovieList(getMoviesByPage(currentPage))
+})
+
+/*** 監聽 顯示清單模式 ***/
+displayList.addEventListener('click', function onDisplayListClicked(event) {
+  localStorage.setItem('displayMode', JSON.stringify('list'))
+  const currentPage = JSON.parse(localStorage.getItem('homeCurrentPage'))
+  renderMovieList(getMoviesByPage(currentPage))
+})
+
 // 請求資料
 axios
   .get(INDEX_URL)
@@ -238,8 +302,9 @@ axios
     movies.push(...response.data.results)
 
     // 初始更新畫面
+    localStorage.setItem('homeCurrentPage', JSON.stringify(1))
+    localStorage.setItem('displayMode', JSON.stringify('card'))
     renderPaginator(movies.length)
     renderMovieList(getMoviesByPage(1))
-    localStorage.setItem('homeCurrentPage', JSON.stringify(1))
   })
   .catch((err) => console.log(err))
